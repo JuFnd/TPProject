@@ -1,0 +1,118 @@
+{
+	"BUILD_DIR" : "/home/alfaiv/Code/TP_VK/ScreenCast/QTtestTread/build-SessionFeature-Desktop_Qt_5_15_2_GCC_64bit-Debug/mytread_autogen",
+	"CMAKE_BINARY_DIR" : "/home/alfaiv/Code/TP_VK/ScreenCast/QTtestTread/build-SessionFeature-Desktop_Qt_5_15_2_GCC_64bit-Debug",
+	"CMAKE_CURRENT_BINARY_DIR" : "/home/alfaiv/Code/TP_VK/ScreenCast/QTtestTread/build-SessionFeature-Desktop_Qt_5_15_2_GCC_64bit-Debug",
+	"CMAKE_CURRENT_SOURCE_DIR" : "/home/alfaiv/Code/TP_VK/ScreenCast/QTtestTread/SessionFeature",
+	"CMAKE_EXECUTABLE" : "/home/alfaiv/Qt/Tools/CMake/bin/cmake",
+	"CMAKE_LIST_FILES" : 
+	[
+		"/home/alfaiv/Code/TP_VK/ScreenCast/QTtestTread/SessionFeature/CMakeLists.txt",
+		"/home/alfaiv/Code/TP_VK/ScreenCast/QTtestTread/build-SessionFeature-Desktop_Qt_5_15_2_GCC_64bit-Debug/.qtc/package-manager/auto-setup.cmake",
+		"/home/alfaiv/Code/TP_VK/ScreenCast/QTtestTread/build-SessionFeature-Desktop_Qt_5_15_2_GCC_64bit-Debug/CMakeFiles/3.24.2/CMakeSystem.cmake",
+		"/home/alfaiv/Qt/Tools/CMake/share/cmake-3.24/Modules/CMakeSystemSpecificInitialize.cmake",
+		"/home/alfaiv/Code/TP_VK/ScreenCast/QTtestTread/build-SessionFeature-Desktop_Qt_5_15_2_GCC_64bit-Debug/CMakeFiles/3.24.2/CMakeCXXCompiler.cmake",
+		"/home/alfaiv/Qt/Tools/CMake/share/cmake-3.24/Modules/CMakeSystemSpecificInformation.cmake",
+		"/home/alfaiv/Qt/Tools/CMake/share/cmake-3.24/Modules/CMakeGenericSystem.cmake",
+		"/home/alfaiv/Qt/Tools/CMake/share/cmake-3.24/Modules/CMakeInitializeConfigs.cmake",
+		"/home/alfaiv/Qt/Tools/CMake/share/cmake-3.24/Modules/Platform/Linux.cmake",
+		"/home/alfaiv/Qt/Tools/CMake/share/cmake-3.24/Modules/Platform/UnixPaths.cmake",
+		"/home/alfaiv/Qt/Tools/CMake/share/cmake-3.24/Modules/CMakeCXXInformation.cmake",
+		"/home/alfaiv/Qt/Tools/CMake/share/cmake-3.24/Modules/CMakeLanguageInformation.cmake",
+		"/home/alfaiv/Qt/Tools/CMake/share/cmake-3.24/Modules/Compiler/GNU-CXX.cmake",
+		"/home/alfaiv/Qt/Tools/CMake/share/cmake-3.24/Modules/Compiler/GNU.cmake",
+		"/home/alfaiv/Qt/Tools/CMake/share/cmake-3.24/Modules/Compiler/CMakeCommonCompilerMacros.cmake",
+		"/home/alfaiv/Qt/Tools/CMake/share/cmake-3.24/Modules/Platform/Linux-GNU-CXX.cmake",
+		"/home/alfaiv/Qt/Tools/CMake/share/cmake-3.24/Modules/Platform/Linux-GNU.cmake",
+		"/home/alfaiv/Qt/Tools/CMake/share/cmake-3.24/Modules/CMakeCommonLanguageInclude.cmake",
+		"/home/alfaiv/Qt/5.15.2/gcc_64/lib/cmake/Qt5/Qt5ConfigVersion.cmake",
+		"/home/alfaiv/Qt/5.15.2/gcc_64/lib/cmake/Qt5/Qt5Config.cmake",
+		"/home/alfaiv/Qt/5.15.2/gcc_64/lib/cmake/Qt5/Qt5ConfigVersion.cmake",
+		"/home/alfaiv/Qt/5.15.2/gcc_64/lib/cmake/Qt5/Qt5Config.cmake",
+		"/home/alfaiv/Qt/5.15.2/gcc_64/lib/cmake/Qt5/Qt5ModuleLocation.cmake",
+		"/home/alfaiv/Qt/5.15.2/gcc_64/lib/cmake/Qt5Core/Qt5CoreConfigVersion.cmake",
+		"/home/alfaiv/Qt/5.15.2/gcc_64/lib/cmake/Qt5Core/Qt5CoreConfig.cmake",
+		"/home/alfaiv/Qt/5.15.2/gcc_64/lib/cmake/Qt5Core/Qt5CoreConfigExtras.cmake",
+		"/home/alfaiv/Qt/5.15.2/gcc_64/lib/cmake/Qt5Core/Qt5CoreConfigExtrasMkspecDir.cmake",
+		"/home/alfaiv/Qt/5.15.2/gcc_64/lib/cmake/Qt5Core/Qt5CoreMacros.cmake",
+		"/home/alfaiv/Qt/Tools/CMake/share/cmake-3.24/Modules/CMakeParseArguments.cmake"
+	],
+	"CMAKE_SOURCE_DIR" : "/home/alfaiv/Code/TP_VK/ScreenCast/QTtestTread/SessionFeature",
+	"DEP_FILE" : "/home/alfaiv/Code/TP_VK/ScreenCast/QTtestTread/build-SessionFeature-Desktop_Qt_5_15_2_GCC_64bit-Debug/mytread_autogen/deps",
+	"DEP_FILE_RULE_NAME" : "mytread_autogen/timestamp",
+	"HEADERS" : 
+	[
+		[
+			"/home/alfaiv/Code/TP_VK/ScreenCast/QTtestTread/SessionFeature/header/mythread.h",
+			"MU",
+			"6OFTS6FJJP/moc_mythread.cpp",
+			null
+		]
+	],
+	"HEADER_EXTENSIONS" : [ "h", "hh", "h++", "hm", "hpp", "hxx", "in", "txx" ],
+	"INCLUDE_DIR" : "/home/alfaiv/Code/TP_VK/ScreenCast/QTtestTread/build-SessionFeature-Desktop_Qt_5_15_2_GCC_64bit-Debug/mytread_autogen/include",
+	"MOC_COMPILATION_FILE" : "/home/alfaiv/Code/TP_VK/ScreenCast/QTtestTread/build-SessionFeature-Desktop_Qt_5_15_2_GCC_64bit-Debug/mytread_autogen/mocs_compilation.cpp",
+	"MOC_DEFINITIONS" : [ "QT_CORE_LIB" ],
+	"MOC_DEPEND_FILTERS" : 
+	[
+		[
+			"Q_PLUGIN_METADATA",
+			"[\n][ \t]*Q_PLUGIN_METADATA[ \t]*\\([^\\)]*FILE[ \t]*\"([^\"]+)\""
+		]
+	],
+	"MOC_INCLUDES" : 
+	[
+		"/home/alfaiv/Code/TP_VK/ScreenCast/QTtestTread/SessionFeature/header",
+		"/home/alfaiv/Code/TP_VK/ScreenCast/QTtestTread/SessionFeature/src",
+		"/home/alfaiv/Qt/5.15.2/gcc_64/include",
+		"/home/alfaiv/Qt/5.15.2/gcc_64/include/QtCore",
+		"/home/alfaiv/Qt/5.15.2/gcc_64/mkspecs/linux-g++",
+		"/usr/include/c++/12",
+		"/usr/include/x86_64-linux-gnu/c++/12",
+		"/usr/include/c++/12/backward",
+		"/usr/lib/gcc/x86_64-linux-gnu/12/include",
+		"/usr/local/include",
+		"/usr/include/x86_64-linux-gnu",
+		"/usr/include"
+	],
+	"MOC_MACRO_NAMES" : [ "Q_OBJECT", "Q_GADGET", "Q_NAMESPACE", "Q_NAMESPACE_EXPORT" ],
+	"MOC_OPTIONS" : [],
+	"MOC_PATH_PREFIX" : false,
+	"MOC_PREDEFS_CMD" : 
+	[
+		"/usr/bin/g++",
+		"-dM",
+		"-E",
+		"-c",
+		"/home/alfaiv/Qt/Tools/CMake/share/cmake-3.24/Modules/CMakeCXXCompilerABI.cpp"
+	],
+	"MOC_PREDEFS_FILE" : "/home/alfaiv/Code/TP_VK/ScreenCast/QTtestTread/build-SessionFeature-Desktop_Qt_5_15_2_GCC_64bit-Debug/mytread_autogen/moc_predefs.h",
+	"MOC_RELAXED_MODE" : false,
+	"MOC_SKIP" : 
+	[
+		"/home/alfaiv/Code/TP_VK/ScreenCast/QTtestTread/build-SessionFeature-Desktop_Qt_5_15_2_GCC_64bit-Debug/reciver_autogen/mocs_compilation.cpp"
+	],
+	"MULTI_CONFIG" : false,
+	"PARALLEL" : 4,
+	"PARSE_CACHE_FILE" : "/home/alfaiv/Code/TP_VK/ScreenCast/QTtestTread/build-SessionFeature-Desktop_Qt_5_15_2_GCC_64bit-Debug/CMakeFiles/mytread_autogen.dir/ParseCache.txt",
+	"QT_MOC_EXECUTABLE" : "/home/alfaiv/Qt/5.15.2/gcc_64/bin/moc",
+	"QT_UIC_EXECUTABLE" : "",
+	"QT_VERSION_MAJOR" : 5,
+	"QT_VERSION_MINOR" : 15,
+	"SETTINGS_FILE" : "/home/alfaiv/Code/TP_VK/ScreenCast/QTtestTread/build-SessionFeature-Desktop_Qt_5_15_2_GCC_64bit-Debug/CMakeFiles/mytread_autogen.dir/AutogenUsed.txt",
+	"SOURCES" : 
+	[
+		[
+			"/home/alfaiv/Code/TP_VK/ScreenCast/QTtestTread/SessionFeature/src/mythread.cpp",
+			"MU",
+			null
+		]
+	],
+	"UIC_OPTIONS" : [],
+	"UIC_SEARCH_PATHS" : [],
+	"UIC_SKIP" : 
+	[
+		"/home/alfaiv/Code/TP_VK/ScreenCast/QTtestTread/build-SessionFeature-Desktop_Qt_5_15_2_GCC_64bit-Debug/reciver_autogen/mocs_compilation.cpp"
+	],
+	"UIC_UI_FILES" : [],
+	"VERBOSITY" : 0
+}
