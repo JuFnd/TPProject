@@ -68,50 +68,93 @@ void Reciver::run()
 
 int Reciver::start_reciver()
 {
-    GstElement *pipeline = nullptr;
-    GstBus *bus = nullptr;
-    GstMessage *msg = nullptr;
-    GstStateChangeReturn ret;
-    GMainLoop* main_loop;
+    GstElement *pipeline, *udpsrc1, *udpsrc2, *depay1, *depay2, *parse1, *parse2, *decode1, *decode2, *convert1, *convert2, *autovideosink1, *autovideosink2, *audioresample, *capsfilter1, *capsfilter2, *queue1, *queue2;
+    GstBus *bus;
+    GstMessage *msg;
+    GstCaps *caps1, *caps2;
+    GMainLoop *loop;
 
-    gchar *pipeline_str = "udpsrc port=5000 ! application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264,payload=(int)96 ! rtph264depay ! h264parse ! avdec_h264 ! videoconvert ! autovideosink sync=false udpsrc port=5001 ! application/x-rtp,media=(string)audio,clock-rate=(int)48000,encoding-name=(string)OPUS,payload=(int)96 ! rtpopusdepay ! opusparse ! avdec_opus ! audioconvert ! audioresample ! autoaudiosink";
-
-
-    // gstreamer initialization
     gst_init(NULL, NULL);
 
-    // building pipeline
-    pipeline = gst_parse_launch(
-        pipeline_str,
-        nullptr);
+    pipeline = gst_pipeline_new("pipeline");
+    udpsrc1 = gst_element_factory_make("udpsrc", "udpsrc1");
+    queue1 = gst_element_factory_make("queue", "buffer1");
+    capsfilter1 = gst_element_factory_make("capsfilter", "capsfilter1");
+    depay1 = gst_element_factory_make("rtph264depay", "depay1");
+    parse1 = gst_element_factory_make("h264parse", "parse1");
+    decode1 = gst_element_factory_make("avdec_h264", "decode1");
+    convert1 = gst_element_factory_make("videoconvert", "convert1");
+    autovideosink1 = gst_element_factory_make("autovideosink", "autovideosink1");
 
-    // start playing
-    ret = gst_element_set_state(pipeline, GST_STATE_PLAYING);
-    if (ret == GST_STATE_CHANGE_FAILURE) {
-        g_printerr ("Unable to set the pipeline to the playing state.\n");
-        gst_object_unref (pipeline);
+    udpsrc2 = gst_element_factory_make("udpsrc", "udpsrc2");
+    queue2 = gst_element_factory_make("queue", "buffer2");
+    capsfilter2 = gst_element_factory_make("capsfilter", "capsfilter2");
+    depay2 = gst_element_factory_make("rtpopusdepay", "depay2");
+    parse2 = gst_element_factory_make("opusparse", "parse2");
+    decode2 = gst_element_factory_make("avdec_opus", "decode2");
+    convert2 = gst_element_factory_make("audioconvert", "convert2");
+    audioresample = gst_element_factory_make("audioresample", "audioresample");
+    autovideosink2 = gst_element_factory_make("autoaudiosink", "autovideosink2");
+
+
+    if (!pipeline || !udpsrc1 || !udpsrc2 || !depay1 || !depay2 || !parse1 || !parse2 || !decode1 || !decode2 || !convert1 || !convert2 || !autovideosink1 || !autovideosink2 || !audioresample || !capsfilter2 || !capsfilter1 || !queue1 || !queue2) {
+        g_printerr("Not all elements could be created. Exiting.\n");
         return -1;
-    } else if (ret == GST_STATE_CHANGE_NO_PREROLL) {
-        data.is_live = TRUE;
     }
 
-    main_loop = g_main_loop_new (NULL, FALSE);
-    data.loop = main_loop;
-    data.pipeline = pipeline;
 
-    //wait until error or EOS ( End Of Stream )
+    caps1 = gst_caps_new_simple("application/x-rtp",
+                                "media",G_TYPE_STRING ,"video",
+                                "clock-rate",G_TYPE_INT ,90000,
+                                "encoding-name", G_TYPE_STRING, "H264",
+                                "payload",G_TYPE_INT ,96,
+                                NULL);
+
+    caps2 = gst_caps_new_simple("application/x-rtp",
+                                "media",G_TYPE_STRING ,"audio",
+                                "clock-rate",G_TYPE_INT ,48000,
+                                "encoding-name", G_TYPE_STRING, "OPUS",
+                                "payload",G_TYPE_INT ,96,
+                                NULL);
+
+    g_object_set(G_OBJECT(capsfilter1), "caps", caps1, NULL);
+    g_object_set(G_OBJECT(capsfilter2), "caps", caps2, NULL);
+
+    gst_caps_unref(caps1);
+    gst_caps_unref(caps2);
+
+
+    GST_DEBUG_BIN_TO_DOT_FILE(GST_BIN(pipeline), GST_DEBUG_GRAPH_SHOW_ALL, "pipeline_RECEIVE");
+    gst_bin_add_many(GST_BIN(pipeline), udpsrc1,queue1 , capsfilter1, depay1, parse1, decode1, convert1, autovideosink1, udpsrc2, queue2, capsfilter2, depay2, parse2, decode2, convert2, audioresample, autovideosink2, NULL);
+
+    GST_DEBUG_BIN_TO_DOT_FILE(GST_BIN(pipeline), GST_DEBUG_GRAPH_SHOW_ALL, "pipeline_RECEIVE");
+
+    if (!gst_element_link_many(udpsrc1, queue1 ,capsfilter1 , depay1, parse1, decode1, convert1, autovideosink1, NULL) ||
+        !gst_element_link_many(udpsrc2, queue2, capsfilter2 , depay2, parse2, decode2, convert2, audioresample, autovideosink2, NULL)) {
+        g_printerr("Could not link all elements. Exiting.\n");
+        return -1;
+    }
+
+    g_object_set(udpsrc1, "port", 5001, NULL);
+    g_object_set(udpsrc2, "port", 5000, NULL);
+
+    GST_DEBUG_BIN_TO_DOT_FILE(GST_BIN(pipeline), GST_DEBUG_GRAPH_SHOW_ALL, "pipeline_RECEIVE");
+    gst_element_set_state(pipeline, GST_STATE_PLAYING);
+
+    loop = g_main_loop_new(NULL, FALSE);
+
     bus = gst_element_get_bus(pipeline);
-    msg = gst_bus_timed_pop_filtered(bus, GST_CLOCK_TIME_NONE,
-                                     static_cast<GstMessageType>(GST_MESSAGE_ERROR | GST_MESSAGE_EOS));
-//    g_signal_connect (bus, "message", G_CALLBACK (cb_message), &data);
 
+//    gst_bus_add_watch(bus, (GstBusFunc)bus_callback, loop);
 
-    // free memory
-    if (msg != nullptr)
-        gst_message_unref(msg);
     gst_object_unref(bus);
+
+    g_main_loop_run(loop);
+
+    g_main_loop_unref(loop);
     gst_element_set_state(pipeline, GST_STATE_NULL);
     gst_object_unref(pipeline);
 
     return 0;
+
 }
