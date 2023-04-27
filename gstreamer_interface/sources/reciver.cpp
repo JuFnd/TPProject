@@ -1,15 +1,6 @@
-#include "example_gstreamer.h"
+#include "reciver.h"
+#include <QDebug>
 
-typedef struct _CustomData {
-    gboolean is_live;
-    GstElement* pipeline;
-    GMainLoop* loop;
-} CustomData;
-
-QString get_QString() {
-    return "qt_gstreamer library\n";
-
-}
 
 static void cb_message (GstBus *bus, GstMessage *msg, CustomData *data) {
 
@@ -59,25 +50,43 @@ static void cb_message (GstBus *bus, GstMessage *msg, CustomData *data) {
 }
 
 
-int display(int argc, char *argv[]) {
-    GstElement* pipeline;
-    GstBus* bus;
-    GstStateChangeReturn ret;
-    GMainLoop* main_loop;
-    CustomData data;
 
-    /* Initialize GStreamer */
-    gst_init (&argc, &argv);
 
+Reciver::Reciver(QString port_to_reciving):Session()
+{
+    port = port_to_reciving;
     /* Initialize our data structure */
     memset (&data, 0, sizeof (data));
+    qDebug() << "port:" << this->port;
+}
 
-    /* Build the pipeline */
-    pipeline = gst_parse_launch ("playbin uri=https://gstreamer.freedesktop.org/data/media/sintel_trailer-480p.webm", NULL);
-    bus = gst_element_get_bus (pipeline);
+void Reciver::run()
+{
+    this->start_reciver();
+}
 
-    /* Start playing */
-    ret = gst_element_set_state (pipeline, GST_STATE_PLAYING);
+
+int Reciver::start_reciver()
+{
+    GstElement *pipeline = nullptr;
+    GstBus *bus = nullptr;
+    GstMessage *msg = nullptr;
+    GstStateChangeReturn ret;
+    GMainLoop* main_loop;
+
+    gchar *pipeline_str = "udpsrc port=5000 ! application/x-rtp,media=(string)video,clock-rate=(int)90000,encoding-name=(string)H264,payload=(int)96 ! rtph264depay ! h264parse ! avdec_h264 ! videoconvert ! autovideosink sync=false udpsrc port=5001 ! application/x-rtp,media=(string)audio,clock-rate=(int)48000,encoding-name=(string)OPUS,payload=(int)96 ! rtpopusdepay ! opusparse ! avdec_opus ! audioconvert ! audioresample ! autoaudiosink";
+
+
+    // gstreamer initialization
+    gst_init(NULL, NULL);
+
+    // building pipeline
+    pipeline = gst_parse_launch(
+        pipeline_str,
+        nullptr);
+
+    // start playing
+    ret = gst_element_set_state(pipeline, GST_STATE_PLAYING);
     if (ret == GST_STATE_CHANGE_FAILURE) {
         g_printerr ("Unable to set the pipeline to the playing state.\n");
         gst_object_unref (pipeline);
@@ -90,15 +99,19 @@ int display(int argc, char *argv[]) {
     data.loop = main_loop;
     data.pipeline = pipeline;
 
-    gst_bus_add_signal_watch (bus);
+    //wait until error or EOS ( End Of Stream )
+    bus = gst_element_get_bus(pipeline);
+    msg = gst_bus_timed_pop_filtered(bus, GST_CLOCK_TIME_NONE,
+                                     static_cast<GstMessageType>(GST_MESSAGE_ERROR | GST_MESSAGE_EOS));
     g_signal_connect (bus, "message", G_CALLBACK (cb_message), &data);
 
-    g_main_loop_run (main_loop);
 
-    /* Free resources */
-    g_main_loop_unref (main_loop);
-    gst_object_unref (bus);
-    gst_element_set_state (pipeline, GST_STATE_NULL);
-    gst_object_unref (pipeline);
+    // free memory
+    if (msg != nullptr)
+        gst_message_unref(msg);
+    gst_object_unref(bus);
+    gst_element_set_state(pipeline, GST_STATE_NULL);
+    gst_object_unref(pipeline);
+
     return 0;
 }

@@ -23,3 +23,36 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 	${CMAKE_CURRENT_LIST_DIR}/include
 	${GSTREAMER_INCLUDE_DIRS}
 )
+
+#add_executable(${PROJECT_NAME}
+#    sources/main.cpp
+#)
+
+#target_link_libraries(${PROJECT_NAME} PRIVATE
+#        Qt5::Core
+#        ${GSTREAMER_LIBRARIES}
+#)
+
+##приемник --------------------------------------
+#add_library(reciver
+#            STATIC
+#            include/reciver.h
+#            sources/reciver.cpp
+#            )
+
+#target_link_libraries(reciver
+#                        Qt5::Core
+#                        ${GSTREAMER_LIBRARIES}
+#                        )
+##------------------------------------------------
+
+
+#add_executable(SessionFeature
+#    sources/main.cpp
+#)
+
+#target_link_libraries(SessionFeature
+#                        Qt5::Core
+#                        reciver
+#                    )
+
