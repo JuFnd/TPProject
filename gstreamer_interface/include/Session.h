@@ -1,6 +1,9 @@
 #ifndef SESSION_H
 #define SESSION_H
 
+#include <QThread>
+#include <QString>
+
 extern "C" {
 #include <glib-2.0/glib.h>
 #include <gst/gst.h>
