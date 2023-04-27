@@ -39,4 +39,11 @@ gboolean Session::bus_callback(GstBus *bus, GstMessage *msg, gpointer data) {
     return TRUE;
 }
 
+void Session::start_sesion(){
+    this->start();
+}
+
+void Session::stop_sesion(){
+    this->quit();
+}
 

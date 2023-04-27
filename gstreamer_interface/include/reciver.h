@@ -15,8 +15,22 @@ class Reciver : public Session
         explicit Reciver(QString port_to_reciving);
 
         // overriding the QThread's run() method
+
+        void startReceive();
+
+        void addLinkVideo() ;
+
+        void addLinkAudio() ;
+
+        void startVideoSession() ;
+
+        void startAudioSession();
+
+        void killVideoSession();
+
+        void killAudioSession();
+
         void run();
-        int start_reciver();
 };
 
 

@@ -6,16 +6,28 @@
 #include <gst/gst.h>
 
 
+
 class Session : public QThread
 {
 public:
     // overriding the QThread's run() method
     void run() = 0;
-    gboolean bus_callback(GstBus *bus, GstMessage *msg, gpointer data);
+    void start_sesion();
+    void stop_sesion();
 
 protected:
+    gboolean bus_callback(GstBus *bus, GstMessage *msg, gpointer data);
+
+    struct CustomData {
+        GstElement *pipeline;
+        GstBus *bus;
+        GstMessage *msg;
+        GMainLoop *loop;
+    } data;
+
     QString ip;//fix_it local_ip
-    QString port;
+    int port_for_audio;
+    int port_for_video;
 
 };
 #endif // SESSION_H

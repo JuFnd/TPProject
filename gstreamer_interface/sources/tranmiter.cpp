@@ -1,30 +1,23 @@
 #include "transmmiter.h"
 #include <QDebug>
 
-Transmiter::Transmiter(QString port_to_transmit) : Session()
-{
-    port = port_to_transmit;
-    qDebug() << "port for transmitter:" << this->port;
-}
-
-void Transmiter::run()
-{
-    this->start_transmit();
+Transmiter::Transmiter(int port_to_transmit_video, int port_to_transmit_audio){
+    this->port_for_audio = port_to_transmit_audio;
+    this->port_for_video = port_to_transmit_video;
 }
 
 
-int Transmiter::start_transmit() {
-    GstElement *pipeline, *ximagesrc, *videoscale, *videoconvert, *x264enc, *h264parse, *rtph264pay, *udpsink1, *capsfilter1, *capsfilter2, *alsasrc, *audioconvert, *audioresample, *opusenc, *rtpopuspay, *udpsink2;
-    GstBus* bus;
-    GMainLoop *loop;
-    GstMessage *msg;
-
-    loop = g_main_loop_new(NULL, FALSE);
+void Transmiter::addLinkVideo() {
+    GstElement *ximagesrc, *videoscale, *videoconvert, *x264enc, *h264parse,
+        *rtph264pay, *udpsink1, *capsfilter1, *capsfilter2;
     GstCaps *caps1, *caps2;
 
-    gst_init(NULL, NULL);
+    gst_init(0, nullptr);
 
-    pipeline = gst_pipeline_new("pipeline");
+    if (data.pipeline == NULL) {
+        data.pipeline = gst_pipeline_new("pipeline");
+    }
+
     ximagesrc = gst_element_factory_make("ximagesrc", "ximagesrc");
     capsfilter1 = gst_element_factory_make("capsfilter", "capsfilter1");
     videoscale = gst_element_factory_make("videoscale", "videoscale");
@@ -35,24 +28,21 @@ int Transmiter::start_transmit() {
     rtph264pay = gst_element_factory_make("rtph264pay", "rtph264pay");
     udpsink1 = gst_element_factory_make("udpsink", "udpsink1");
 
-    alsasrc = gst_element_factory_make("alsasrc", "alsasrc");
-    audioconvert = gst_element_factory_make("audioconvert", "audioconvert");
-    audioresample = gst_element_factory_make("audioresample", "audioresample");
-    opusenc = gst_element_factory_make("opusenc", "opusenc");
-    rtpopuspay = gst_element_factory_make("rtpopuspay", "rtpopuspay");
-    udpsink2 = gst_element_factory_make("udpsink", "udpsink2");
+    if (!data.pipeline || !h264parse || !ximagesrc || !capsfilter1 ||
+        !capsfilter2 || !videoscale || !videoconvert || !x264enc || !rtph264pay ||
+        !udpsink1) {
+        g_printerr("Not all elements could be created\n");
+        return;
+    }
 
+    caps1 =
+        gst_caps_new_simple("video/x-raw", "framerate", GST_TYPE_FRACTION, 30, 1,
 
-    caps1 = gst_caps_new_simple("video/x-raw",
-                                "framerate", GST_TYPE_FRACTION, 30, 1,
+                            NULL);
 
-                                NULL);
-
-    caps2 = gst_caps_new_simple("video/x-h264",
-                                "profile", G_TYPE_STRING, "main",
-                                "width", G_TYPE_INT, 1024,
-                                "height", G_TYPE_INT, 600,
-                                NULL);
+    caps2 = gst_caps_new_simple("video/x-h264", "profile", G_TYPE_STRING, "main",
+                                "width", G_TYPE_INT, 1024, "height", G_TYPE_INT,
+                                600, NULL);
 
     g_object_set(G_OBJECT(capsfilter1), "caps", caps1, NULL);
     g_object_set(G_OBJECT(capsfilter2), "caps", caps2, NULL);
@@ -60,50 +50,97 @@ int Transmiter::start_transmit() {
     gst_caps_unref(caps1);
     gst_caps_unref(caps2);
 
+    gst_bin_add_many(GST_BIN(data.pipeline), ximagesrc, capsfilter1, videoscale,
+                     videoconvert, x264enc, capsfilter2, h264parse, rtph264pay,
+                     udpsink1, NULL);
 
-    if (!pipeline || !h264parse || !ximagesrc || !capsfilter1 || !capsfilter2 || !videoscale || !videoconvert || !x264enc || !rtph264pay || !udpsink1 || !alsasrc || !audioconvert || !audioresample || !opusenc || !rtpopuspay || !udpsink2 ) {
+    if (gst_element_link_many(ximagesrc, capsfilter1, videoscale, videoconvert,
+                              x264enc, capsfilter2, h264parse, rtph264pay,
+                              udpsink1, NULL) != TRUE) {
+        g_printerr("Failed to link elements: ximagesrc -> videoscale -> "
+                   "videoconvert -> x264enc -> rtph264pay -> udpsink1\n");
+        gst_object_unref(data.pipeline);
+        return;
+    }
+
+    g_object_set(udpsink1, "sync", FALSE, "host", "127.0.0.1", "port", 5001,
+                 NULL);
+    g_object_set(x264enc, "pass", 17, "tune", 4, "bitrate", 2200, NULL);
+}
+
+void Transmiter::addLinkAudio() {
+    GstElement *alsasrc, *audioconvert, *audioresample, *opusenc, *rtpopuspay,
+        *udpsink2;
+
+    gst_init(0, nullptr);
+    if (data.pipeline == NULL) {
+        data.pipeline = gst_pipeline_new("pipeline");
+    }
+
+    alsasrc = gst_element_factory_make("alsasrc", "alsasrc");
+    audioconvert = gst_element_factory_make("audioconvert", "audioconvert");
+    audioresample = gst_element_factory_make("audioresample", "audioresample");
+    opusenc = gst_element_factory_make("opusenc", "opusenc");
+    rtpopuspay = gst_element_factory_make("rtpopuspay", "rtpopuspay");
+    udpsink2 = gst_element_factory_make("udpsink", "udpsink2");
+
+    if (!data.pipeline || !alsasrc || !audioconvert || !audioresample ||
+        !opusenc || !rtpopuspay || !udpsink2) {
         g_printerr("Not all elements could be created\n");
-        return -1;
+        return;
     }
 
+    gst_bin_add_many(GST_BIN(data.pipeline), alsasrc, audioconvert, audioresample,
+                     opusenc, rtpopuspay, udpsink2, NULL);
 
-    gst_bin_add_many(GST_BIN(pipeline), ximagesrc,capsfilter1,  videoscale, videoconvert, x264enc, capsfilter2 ,h264parse, rtph264pay, udpsink1,alsasrc, audioconvert, audioresample, opusenc, rtpopuspay, udpsink2, NULL);
-
-
-    if (gst_element_link_many(ximagesrc, capsfilter1 , videoscale, videoconvert, x264enc, capsfilter2 , h264parse, rtph264pay, udpsink1, NULL) !=TRUE)  {
-        g_printerr("Failed to link elements: ximagesrc -> videoscale -> videoconvert -> x264enc -> rtph264pay -> udpsink1\n");
-        gst_object_unref(pipeline);
-        return -1;
+    if (gst_element_link_many(alsasrc, audioconvert, audioresample, opusenc,
+                              rtpopuspay, udpsink2, NULL) != TRUE) {
+        g_printerr("Failed to link elements: ximagesrc -> videoscale -> "
+                   "videoconvert -> x264enc -> rtph264pay -> udpsink1\n");
+        gst_object_unref(data.pipeline);
+        return;
     }
 
+    g_object_set(udpsink2, "sync", FALSE, "host", "127.0.0.1", "port", 5000,
+                 NULL);
+}
+void Transmiter::startAudioSession() {
+    addLinkAudio();
+    startSend();
+}
 
-    if (gst_element_link_many(alsasrc, audioconvert, audioresample, opusenc, rtpopuspay, udpsink2, NULL) !=TRUE)  {
-        g_printerr("Failed to link elements: ximagesrc -> videoscale -> videoconvert -> x264enc -> rtph264pay -> udpsink1\n");
-        gst_object_unref(pipeline);
-        return -1;
-    }
+void Transmiter::startVideoSession() {
+    addLinkVideo();
+    addLinkAudio();
+    startSend();
+}
 
+void Transmiter::startSend() {
+    data.bus = gst_element_get_bus(data.pipeline);
 
-    g_print("Running...\n");
-    g_object_set(udpsink1,"sync", FALSE, "host", "127.0.0.1", "port", 5001, NULL);
-    g_object_set(udpsink2,"sync", FALSE, "host", "127.0.0.1", "port", 5000, NULL);
-    g_object_set(x264enc, "pass", 17,"tune",4,"bitrate",2200,NULL);
+    gst_bus_add_watch(data.bus, (GstBusFunc)bus_callback(data.bus,data.msg,(gpointer)data.loop), NULL);
 
-    bus = gst_element_get_bus(pipeline);
+    gst_element_set_state(data.pipeline, GST_STATE_PLAYING);
+    gst_bus_timed_pop_filtered(
+        data.bus, GST_CLOCK_TIME_NONE,
+        (GstMessageType)(GST_MESSAGE_ERROR | GST_MESSAGE_EOS));
+}
 
-    gst_bus_add_watch(bus, (GstBusFunc)Transmiter::bus_callback(bus,msg,(gpointer)loop), loop);
+void Transmiter::killVideoSession() {
+    gst_object_unref(data.bus);
+    gst_element_set_state(data.pipeline, GST_STATE_NULL);
+    gst_object_unref(data.pipeline);
+}
 
+void Transmiter::killAudioSession() {
+    gst_object_unref(data.bus);
+    gst_element_set_state(data.pipeline, GST_STATE_NULL);
+    gst_object_unref(data.pipeline);
+}
 
-    GST_DEBUG_BIN_TO_DOT_FILE(GST_BIN(pipeline), GST_DEBUG_GRAPH_SHOW_ALL, "pipeline_SEND");
-    gst_element_set_state(pipeline, GST_STATE_PLAYING);
-    gst_bus_timed_pop_filtered (bus, GST_CLOCK_TIME_NONE, (GstMessageType)(GST_MESSAGE_ERROR | GST_MESSAGE_EOS));
-
-    g_print("Running...\n");
-
-
-    gst_object_unref(bus);
-    gst_element_set_state(pipeline, GST_STATE_NULL);
-    gst_object_unref(pipeline);
-
-    return 0;
+void Transmiter::run() {
+    startVideoSession();
+    killVideoSession();
+    // startAudioSession();
+    // killAudioSession();
 }
