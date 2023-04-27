@@ -3,15 +3,10 @@
 
 #include <QThread>
 #include <QString>
+#include <Session.h>
+#include <gst/gst.h>
 
-
-extern "C" {
-    #include <glib-2.0/glib.h>
-    #include <gst/gst.h>
-    #include <gst/video/videooverlay.h>
-}
-
-class Transmiter : public QThread
+class Transmiter : public Session
 {
 public:
     // constructor
@@ -21,7 +16,6 @@ public:
     // overriding the QThread's run() method
     void run();
     int start_transmit();
-    gboolean on_bus_message (GstBus *bus, GstMessage *message, gpointer user_data);
 
 private:
     QString ip;

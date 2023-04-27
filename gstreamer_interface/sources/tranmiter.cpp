@@ -1,8 +1,10 @@
 #include "transmmiter.h"
 #include <QDebug>
 
-Transmiter::Transmiter(QString port_to_transmit) : port(port_to_transmit)
+Transmiter::Transmiter(QString port_to_transmit) : Session()
 {
+    port = port_to_transmit;
+    qDebug() << "port for transmitter:" << this->port;
 }
 
 void Transmiter::run()
@@ -11,37 +13,12 @@ void Transmiter::run()
 }
 
 
-//gboolean Transmiter::on_bus_message (GstBus *bus, GstMessage *message, gpointer user_data)
-//{
-//    GError *error = NULL;
-//    gchar *debug_info = NULL;
-
-//    switch (GST_MESSAGE_TYPE (message)) {
-//    case GST_MESSAGE_ERROR:
-//        gst_message_parse_error (message, &error, &debug_info);
-//        g_printerr ("Error received from element %s: %s\n", GST_OBJECT_NAME (message->src), error->message);
-//        g_printerr ("Debugging information: %s\n", debug_info ? debug_info : "none");
-//        g_clear_error (&error);
-//        g_free (debug_info);
-//        break;
-//    case GST_MESSAGE_WARNING:
-//        gst_message_parse_warning (message, &error, &debug_info);
-//        g_printerr ("Warning received from element %s: %s\n", GST_OBJECT_NAME (message->src), error->message);
-//        g_printerr ("Debugging information: %s\n", debug_info ? debug_info : "none");
-//        g_clear_error (&error);
-//        g_free (debug_info);
-//        break;
-//    default:
-//        break;
-//    }
-
-//    return TRUE;
-//}
-
 int Transmiter::start_transmit() {
     GstElement *pipeline, *ximagesrc, *videoscale, *videoconvert, *x264enc, *h264parse, *rtph264pay, *udpsink1, *capsfilter1, *capsfilter2, *alsasrc, *audioconvert, *audioresample, *opusenc, *rtpopuspay, *udpsink2;
     GstBus* bus;
     GMainLoop *loop;
+    GstMessage *msg;
+
     loop = g_main_loop_new(NULL, FALSE);
     GstCaps *caps1, *caps2;
 
@@ -114,7 +91,7 @@ int Transmiter::start_transmit() {
 
     bus = gst_element_get_bus(pipeline);
 
-//    gst_bus_add_watch(bus, (GstBusFunc) on_bus_message, NULL );
+    gst_bus_add_watch(bus, (GstBusFunc)Transmiter::bus_callback(bus,msg,(gpointer)loop), loop);
 
 
     GST_DEBUG_BIN_TO_DOT_FILE(GST_BIN(pipeline), GST_DEBUG_GRAPH_SHOW_ALL, "pipeline_SEND");
