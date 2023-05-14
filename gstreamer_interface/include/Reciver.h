@@ -1,15 +1,14 @@
 #pragma once
 
 #include <gst/gst.h>
+#include <string.h>
 
-#include <QDebug>
 #include <QString>
 #include <QThread>
-#include <QtNetwork/QHostAddress>
 
 #include "Session.h"
 
-class Transmiter : public Session {
+class Reciver : public Session {
 private:
     Q_OBJECT
 
@@ -21,15 +20,17 @@ private:
 
     void removeAudio();
 
-    void startSend();
+    void startReceive();
 
 public:
-    explicit Transmiter(const QHostAddress& ip_address_, const qint32 video_port_, const qint32 audio_port_);
-    explicit Transmiter(const QHostAddress& ip_address_, const qint32 audio_port_);
+    explicit Reciver(const qint16 video_port, const qint16 audio_port);
+    explicit Reciver(const qint16 audio_port);
 
-    ~Transmiter();
+    ~Reciver();
 
 public slots:
+    void onVolumeChanged();
+
     void onEnableVideo() override;
 
     void onEnableAudio() override;
@@ -41,4 +42,7 @@ public slots:
     void onStartSession() override;
 
     void onKillSession() override;
+
+signals:
+    void mainWindowClosed();
 };

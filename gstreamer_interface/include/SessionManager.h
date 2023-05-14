@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Receiver.h>
+#include <Reciver.h>
 #include <Transmiter.h>
 
 #include <QMap>
@@ -12,12 +12,12 @@ class SessionManager : public QObject {
 private:
     Q_OBJECT
 	QHash<QPair<QHostAddress, QString>, std::shared_ptr<Session>> live_sessions;  // map<session_id, session>
-    // void handleException(GstreamerError error);	 // Provides flowless application work after gstreamer errors.
+        // void handleException(GstreamerError error);	 // Provides flowless application work after gstreamer errors.
 
-	void startThread(Session* session);
+        void startThread(Session* session, const QString session_type);
 
-public:
-	SessionManager();
+    public:
+        SessionManager();
 
 	~SessionManager();
 
@@ -34,14 +34,14 @@ public slots:
 
 	void onKillVideoReciver(const QHostAddress ip_address);
 
-	void onKillAudioReciver(const QHostAddress ip_address);
+        void onKillAudioReciver(const QHostAddress ip_address);
 
-	void onReceivedPorts(const QHostAddress ip_address, qint32 video_port, qint32 audio_port);
+        void onReceivedPorts(const QHostAddress ip_address, qint32 video_port, qint32 audio_port);
 
-signals:
-	void sendErrorOccured(const QString error_string);
+    signals:
+        void sendErrorOccured(const QString error_string);
 
-	void sendVideoSessionStarted();
+        void sendVideoSessionStarted();
 
 	void sendAudioSessionStarted();
 
