@@ -12,7 +12,10 @@
 #include <QBluetoothServer>
 #include <QBluetoothAddress>
 #include <QBluetoothLocalDevice>
+
 #include "bluetoothformatimage.h"
+#include "client.h"
+#include "server.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -23,20 +26,40 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
+
+    BluetoothFormatImage* getImg(){return img;};
     void setImg();
-    BluetoothFormatImage *getImg(){return img;};
-    MainWindow(QWidget *parent = nullptr);
+    explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+signals:
+    void sendMessage(const QString &message);
+
 private slots:
-    void handleConnection();
-    void on_pushButton_clicked();
+    void connectClicked();
+    void sendClicked();
+
+    void showMessage(const QString &sender, const QString &message);
+
+    void clientConnected(const QString &name);
+    void clientDisconnected(const QString &name);
+    void clientDisconnected();
+    void connected(const QString &name);
+    void reactOnSocketError(const QString &error);
+
+    void newAdapterSelected();
 
 private:
+    int adapterFromUserSelection() const;
     void captureScreen();
+    int currentAdapterIndex = 0;
 
-    QBluetoothServer* server;
+    Server *server;
+    QList<Client *> clients;
+    QList<QBluetoothHostInfo> localAdapters;
+
+    QString localName;
     Ui::MainWindow *ui;
-    BluetoothFormatImage *img;
+    BluetoothFormatImage *img = nullptr;
 };
 #endif // MAINWINDOW_H

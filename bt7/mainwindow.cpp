@@ -1,43 +1,189 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
-#include "screenshots.h"
 
+#include "remoteselector.h"
+#include "server.h"
+
+#include <QtCore/qdebug.h>
+
+#include <QtBluetooth/qbluetoothdeviceinfo.h>
+#include <QtBluetooth/qbluetoothlocaldevice.h>
+#include <QtBluetooth/qbluetoothuuid.h>
+
+
+static const QLatin1String serviceUuid("e8e10f95-1a70-4b27-9ccf-02010264e9c8");
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+    : QMainWindow(parent), ui(new Ui::MainWindow)
 {
-    server = new QBluetoothServer(QBluetoothServiceInfo::RfcommProtocol);
+    //! [Construct UI]
     ui->setupUi(this);
+
+    connect(ui->connectButton, &QPushButton::clicked, this, &MainWindow::connectClicked);
+    connect(ui->sendButton, &QPushButton::clicked, this, &MainWindow::sendClicked);
+    //! [Construct UI]
+
+    localAdapters = QBluetoothLocalDevice::allDevices();
+    if (localAdapters.count() < 2) {
+        qDebug() << "localAdapters 0";
+    } else {
+        //we ignore more than two adapters
+        connect(ui->firstAdapter, &QRadioButton::clicked, this, &MainWindow::newAdapterSelected);
+        connect(ui->secondAdapter, &QRadioButton::clicked, this, &MainWindow::newAdapterSelected);
+        QBluetoothLocalDevice adapter(localAdapters.at(0).address());
+        adapter.setHostMode(QBluetoothLocalDevice::HostDiscoverable);
+    }
+
+    //! [Create Chat Server]
+    server = new Server(this);
+    connect(server, QOverload<const QString &>::of(&Server::clientConnected),
+            this, &MainWindow::clientConnected);
+    connect(server, QOverload<const QString &>::of(&Server::clientDisconnected),
+            this,  QOverload<const QString &>::of(&MainWindow::clientDisconnected));
+    connect(server, &Server::messageReceived,
+            this,  &MainWindow::showMessage);
+    connect(this, &MainWindow::sendMessage, server, &Server::sendMessage);
+    server->startServer();
+    //! [Create Server]
+
+    //! [Get local device name]
+    localName = QBluetoothLocalDevice().name();
+    //! [Get local device name]
 }
 
 MainWindow::~MainWindow()
 {
-    delete ui;
-    delete img;
+    qDeleteAll(clients);
     delete server;
 }
 
-void MainWindow::setImg(){
-    captureScreen();
-}
-
-void MainWindow::handleConnection()
+//! [clientConnected clientDisconnected]
+void MainWindow::clientConnected(const QString &name)
 {
-    // Accept the incoming connection
-    QBluetoothSocket* socket = server->nextPendingConnection();
-
-    // Read the incoming message
-    QByteArray message = socket->readAll();
-    BluetoothFormatImage *content;
-
-    // Do something with the message
-    qDebug() << "Received message: " << message;
-
-    // Close the socket
-    socket->close();
+    qDebug() << name << "connect";
 }
 
+void MainWindow::clientDisconnected(const QString &name)
+{
+    qDebug() << name << "disconnect";
+}
+//! [clientConnected clientDisconnected]
+
+//! [connected]
+void MainWindow::connected(const QString &name)
+{
+    qDebug() << name << "connect";
+}
+//! [connected]
+
+void MainWindow::newAdapterSelected()
+{
+    const int newAdapterIndex = adapterFromUserSelection();
+    if (currentAdapterIndex != newAdapterIndex) {
+        server->stopServer();
+        currentAdapterIndex = newAdapterIndex;
+        const QBluetoothHostInfo info = localAdapters.at(currentAdapterIndex);
+        QBluetoothLocalDevice adapter(info.address());
+        adapter.setHostMode(QBluetoothLocalDevice::HostDiscoverable);
+        server->startServer(info.address());
+        localName = info.name();
+    }
+}
+
+int MainWindow::adapterFromUserSelection() const
+{
+    int result = 0;
+    QBluetoothAddress newAdapter = localAdapters.at(0).address();
+
+    if (ui->secondAdapter->isChecked()) {
+        newAdapter = localAdapters.at(1).address();
+        result = 1;
+    }
+    return result;
+}
+
+void MainWindow::reactOnSocketError(const QString &error)
+{
+
+}
+
+//! [clientDisconnected]
+void MainWindow::clientDisconnected()
+{
+    Client *client = qobject_cast<Client *>(sender());
+    if (client) {
+        clients.removeOne(client);
+        client->deleteLater();
+    }
+}
+//! [clientDisconnected]
+
+//! [Connect to remote service]
+void MainWindow::connectClicked()
+{
+    ui->connectButton->setEnabled(false);
+
+    // scan for services
+    const QBluetoothAddress adapter = localAdapters.isEmpty() ?
+                                          QBluetoothAddress() :
+                                          localAdapters.at(currentAdapterIndex).address();
+
+  RemoteSelector remoteSelector(adapter);
+#ifdef Q_OS_ANDROID
+    if (QtAndroid::androidSdkVersion() >= 23)
+        remoteSelector.startDiscovery(QBluetoothUuid(reverseUuid));
+    else
+        remoteSelector.startDiscovery(QBluetoothUuid(serviceUuid));
+#else
+    remoteSelector.startDiscovery(QBluetoothUuid(serviceUuid));
+#endif
+    if (remoteSelector.exec() == QDialog::Accepted) {
+        QBluetoothServiceInfo service = remoteSelector.service();
+
+        qDebug() << "Connecting to service 2" << service.serviceName()
+                 << "on" << service.device().name();
+
+        // Create client
+        qDebug() << "Going to create client";
+        Client *client = new Client(this);
+        qDebug() << "Connecting...";
+
+        connect(client, &Client::messageReceived,
+                this, &MainWindow::showMessage);
+        connect(client, &Client::disconnected,
+                this, QOverload<>::of(&MainWindow::clientDisconnected));
+        connect(client, QOverload<const QString &>::of(&Client::connected),
+                this, &MainWindow::connected);
+        connect(client, &Client::socketErrorOccurred,
+                this, &MainWindow::reactOnSocketError);
+        connect(this, &MainWindow::sendMessage, client, &Client::sendMessage);
+        qDebug() << "Start client";
+        client->startClient(service);
+
+        clients.append(client);
+    }
+
+    ui->connectButton->setEnabled(true);
+}
+//! [Connect to remote service]
+
+//! [sendClicked]
+void MainWindow::sendClicked()
+{
+    ui->sendButton->setEnabled(false);
+
+    showMessage(localName, img->getDataImage());
+    emit sendMessage(img->getDataImage());
+    ui->sendButton->setEnabled(true);
+}
+//! [sendClicked]
+
+//! [showMessage]
+void MainWindow::showMessage(const QString &sender, const QString &message)
+{
+    qDebug() << img->getDataImage();
+}
+//! [showMessage]
 
 void MainWindow::captureScreen(){
     QPixmap pixmap;
@@ -63,12 +209,6 @@ void MainWindow::captureScreen(){
     });
 }
 
-
-void MainWindow::on_pushButton_clicked()
-{
-    close();
-    Screenshots screen;
-    screen.setModal(true);
-    screen.exec();
+void MainWindow::setImg(){
+    captureScreen();
 }
-

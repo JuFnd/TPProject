@@ -20,9 +20,13 @@ find_package(KF5BluezQt REQUIRED)
 set(PROJECT_SOURCES
         main.cpp
         mainwindow.cpp
-        screenshots.cpp
-        screenshots.h
-        screenshots.ui
+        client.h
+        client.cpp
+        server.cpp
+        server.h
+        remoteselector.cpp
+        remoteselector.h
+        remoteselector.ui
         bluetoothformatimage.cpp
         bluetoothformatimage.h
         mainwindow.h
