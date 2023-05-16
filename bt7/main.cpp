@@ -20,7 +20,7 @@ void sendMessage(BluetoothFormatImage *data) {
     // Set up the Bluetooth socket
     QBluetoothSocket socket(QBluetoothServiceInfo::RfcommProtocol);
     QBluetoothAddress address("BC:7A:BF:8F:94:1D");
-    quint16 port = 1; // Default port for RFCOMM protocol
+    quint16 port = 5777; // Default port for RFCOMM protocol
 
     // Connect to the remote device
     socket.connectToService(address, port);
