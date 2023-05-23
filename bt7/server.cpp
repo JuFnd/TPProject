@@ -101,9 +101,9 @@ void Server::stopServer()
 //! [stopServer]
 
 //! [sendMessage]
-void Server::sendMessage(BluetoothFormatImage *img)
+void Server::sendMessage(QByteArray data)
 {
-    QByteArray text = img->getDataImage();
+    QByteArray text = data;
 
     for (QBluetoothSocket *socket : qAsConst(clientSockets))
         socket->write(text);
@@ -149,7 +149,7 @@ void Server::readSocket()
     while (socket->canReadLine()) {
         QByteArray line = socket->readLine().trimmed();
         emit messageReceived(socket->peerName(),
-                             QString::fromUtf8(line.constData(), line.length()));
+                             line);
     }
 }
 //! [readSocket]

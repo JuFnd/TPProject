@@ -50,15 +50,15 @@ void Client::readSocket()
     while (socket->canReadLine()) {
         QByteArray line = socket->readLine();
         emit messageReceived(socket->peerName(),
-                             QString::fromUtf8(line.constData(), line.length()));
+                             line);
     }
 }
 //! [readSocket]
 
 //! [sendMessage]
-void Client::sendMessage(BluetoothFormatImage *img)
+void Client::sendMessage(QByteArray data)
 {
-    socket->write(img->getDataImage());
+    socket->write(data);
 }
 //! [sendMessage]
 

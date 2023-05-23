@@ -175,15 +175,15 @@ void MainWindow::sendClicked()
     ui->sendButton->setEnabled(false);
 
     showMessage(localName, img->getDataImage());
-    emit sendMessage(img);
+    emit sendMessage(img->getDataImage());
     ui->sendButton->setEnabled(true);
 }
 //! [sendClicked]
 
 //! [showMessage]
-void MainWindow::showMessage(const QString &sender, const QString &message)
+void MainWindow::showMessage(const QString &sender, const QByteArray &message)
 {
-    qDebug() << img->getDataImage();
+    qDebug() << message;
 }
 //! [showMessage]
 
@@ -197,12 +197,12 @@ void MainWindow::captureScreen(){
         //pixmap.save("screenshot.png");
         img = new BluetoothFormatImage(pixmap);
         // Create a label widget to show the pixmap
-        QLabel *label = new QLabel(this);
-        label->setPixmap(pixmap);
-        label->setScaledContents(true);
+        //QLabel *label = new QLabel(this);
+        //label->setPixmap(pixmap);
+        //label->setScaledContents(true);
 
         // Set the label as the central widget of the window
-        setCentralWidget(label);
+        //setCentralWidget(label);
 
         // Show the window in full screen mode
         //showFullScreen();

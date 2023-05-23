@@ -26,10 +26,10 @@ public:
     void stopServer();
 
 public slots:
-    void sendMessage(BluetoothFormatImage *img);
+    void sendMessage(QByteArray data);
 
 signals:
-    void messageReceived(const QString &sender, const QString &message);
+    void messageReceived(const QString &sender, const QByteArray &message);
     void clientConnected(const QString &name);
     void clientDisconnected(const QString &name);
 
