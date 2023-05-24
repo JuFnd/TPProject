@@ -5,6 +5,9 @@
 #include "remoteselector.h"
 #include "server.h"
 
+#include <QPixmap>
+#include <QLabel>
+
 #include <QtCore/qdebug.h>
 
 #include <QtBluetooth/qbluetoothdeviceinfo.h>
@@ -183,7 +186,19 @@ void MainWindow::sendClicked()
 //! [showMessage]
 void MainWindow::showMessage(const QString &sender, const QByteArray &message)
 {
-    qDebug() << message;
+    //delete img;
+    QString data = QString::fromLatin1("%1").arg(message);
+    /*img = nullptr;
+    img = new BluetoothFormatImage(message);
+    QPixmap pixmap;
+    pixmap.loadFromData(message);
+        QLabel *label = new QLabel(this);
+        label->setPixmap(pixmap);
+        //label->setScaledContents(true);
+
+    // Set the label as the central widget of the window
+    setCentralWidget(label);*/
+    qDebug() << data;
 }
 //! [showMessage]
 
@@ -214,3 +229,10 @@ void MainWindow::captureScreen(){
 void MainWindow::setImg(){
     captureScreen();
 }
+
+
+void MainWindow::on_sendButton_clicked()
+{
+
+}
+

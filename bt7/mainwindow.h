@@ -33,7 +33,10 @@ public:
     ~MainWindow();
 
 signals:
-    void sendMessage(QByteArray data);
+    void sendMessage(const QByteArray &data);
+
+private slots:
+    void on_sendButton_clicked();
 
 private slots:
     void connectClicked();

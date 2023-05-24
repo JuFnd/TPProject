@@ -50,15 +50,16 @@ void Client::readSocket()
     while (socket->canReadLine()) {
         QByteArray line = socket->readLine();
         emit messageReceived(socket->peerName(),
-                             line);
+                             QString::fromUtf8(line.constData(), line.length()));
     }
 }
 //! [readSocket]
 
 //! [sendMessage]
-void Client::sendMessage(QByteArray data)
+void Client::sendMessage(const QString &message)
 {
-    socket->write(data);
+    QByteArray text = message.toUtf8() + '\n';
+    socket->write(text);
 }
 //! [sendMessage]
 

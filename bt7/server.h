@@ -26,10 +26,10 @@ public:
     void stopServer();
 
 public slots:
-    void sendMessage(QByteArray data);
+    void sendMessage(const QString &message);
 
 signals:
-    void messageReceived(const QString &sender, const QByteArray &message);
+    void messageReceived(const QString &sender, const QString &message);
     void clientConnected(const QString &name);
     void clientDisconnected(const QString &name);
 

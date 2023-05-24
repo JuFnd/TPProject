@@ -53,7 +53,7 @@ void Server::startServer(const QBluetoothAddress& localAdapter)
     serviceInfo.setAttribute(QBluetoothServiceInfo::ServiceName, tr("Bt Server"));
     serviceInfo.setAttribute(QBluetoothServiceInfo::ServiceDescription,
                              tr("bluetooth server"));
-    serviceInfo.setAttribute(QBluetoothServiceInfo::ServiceProvider, tr);
+    serviceInfo.setAttribute(QBluetoothServiceInfo::ServiceProvider, true   );
     //! [Service name, description and provider]
 
     //! [Service UUID set]
@@ -101,9 +101,9 @@ void Server::stopServer()
 //! [stopServer]
 
 //! [sendMessage]
-void Server::sendMessage(QByteArray data)
+void Server::sendMessage(const QString &message)
 {
-    QByteArray text = data;
+    QByteArray text = message.toUtf8() + '\n';
 
     for (QBluetoothSocket *socket : qAsConst(clientSockets))
         socket->write(text);
@@ -149,7 +149,7 @@ void Server::readSocket()
     while (socket->canReadLine()) {
         QByteArray line = socket->readLine().trimmed();
         emit messageReceived(socket->peerName(),
-                             line);
+                             QString::fromUtf8(line.constData(), line.length()));
     }
 }
 //! [readSocket]
