@@ -18,8 +18,10 @@ class BluetoothFormatImage : public QObject
 private:
     QByteArray dataImage;
 public:
+    BluetoothFormatImage(const QByteArray &data);
     BluetoothFormatImage(QPixmap &mapImage);
     QByteArray getDataImage(){return dataImage;};
+    void saveByteArrayAsImage(QByteArray &byteArray);
 };
 
 #endif // BLUETOOTHFORMATIMAGE_H

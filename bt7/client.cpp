@@ -1,4 +1,5 @@
 #include "client.h"
+#include "bluetoothformatimage.h"
 
 #include <QtCore/qmetaobject.h>
 
@@ -47,19 +48,23 @@ void Client::readSocket()
     if (!socket)
         return;
 
-    while (socket->canReadLine()) {
-        QByteArray line = socket->readLine();
-        emit messageReceived(socket->peerName(),
-                             QString::fromUtf8(line.constData(), line.length()));
+    while (socket->bytesAvailable() > 0) {
+        QByteArray data = socket->readAll();
+        QImage image;
+        image.loadFromData(data, "PNG");
+        emit messageReceived(socket->peerName(), image);
     }
 }
 //! [readSocket]
 
 //! [sendMessage]
-void Client::sendMessage(const QString &message)
+void Client::sendMessage(const QImage &message)
 {
-    QByteArray text = message.toUtf8() + '\n';
-    socket->write(text);
+    QByteArray ba;
+    QBuffer buffer(&ba);
+    buffer.open(QIODevice::WriteOnly);
+    message.save(&buffer, "PNG"); // save image to buffer in PNG format
+    socket->write(ba); // write the buffer to the socket
 }
 //! [sendMessage]
 

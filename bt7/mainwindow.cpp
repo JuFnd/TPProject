@@ -1,8 +1,12 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 
+#include "client.h"
 #include "remoteselector.h"
 #include "server.h"
+
+#include <QPixmap>
+#include <QLabel>
 
 #include <QtCore/qdebug.h>
 
@@ -56,6 +60,7 @@ MainWindow::~MainWindow()
     qDeleteAll(clients);
     delete server;
 }
+
 
 //! [clientConnected clientDisconnected]
 void MainWindow::clientConnected(const QString &name)
@@ -171,17 +176,29 @@ void MainWindow::connectClicked()
 void MainWindow::sendClicked()
 {
     ui->sendButton->setEnabled(false);
+    ui->sendText->setEnabled(false);
+    QImage message;
+    message.loadFromData(img->getDataImage(), "PNG");
+    //showMessage(localName, ui->sendText->text());
+    emit sendMessage(message);
 
-    showMessage(localName, img->getDataImage());
-    emit sendMessage(img->getDataImage());
+    ui->sendText->clear();
+
+    ui->sendText->setEnabled(true);
     ui->sendButton->setEnabled(true);
 }
 //! [sendClicked]
 
 //! [showMessage]
-void MainWindow::showMessage(const QString &sender, const QString &message)
+void MainWindow::showMessage(const QString &sender, const QImage &message)
 {
-    qDebug() << img->getDataImage();
+    QPixmap pixmap = QPixmap::fromImage(message);
+        QLabel *label = new QLabel(this);
+        label->setPixmap(pixmap);
+        //label->setScaledContents(true);
+
+    // Set the label as the central widget of the window
+    setCentralWidget(label);
 }
 //! [showMessage]
 
@@ -195,12 +212,12 @@ void MainWindow::captureScreen(){
         //pixmap.save("screenshot.png");
         img = new BluetoothFormatImage(pixmap);
         // Create a label widget to show the pixmap
-        QLabel *label = new QLabel(this);
-        label->setPixmap(pixmap);
-        label->setScaledContents(true);
+        //QLabel *label = new QLabel(this);
+        //label->setPixmap(pixmap);
+        //label->setScaledContents(true);
 
         // Set the label as the central widget of the window
-        setCentralWidget(label);
+        //setCentralWidget(label);
 
         // Show the window in full screen mode
         //showFullScreen();
@@ -212,3 +229,10 @@ void MainWindow::captureScreen(){
 void MainWindow::setImg(){
     captureScreen();
 }
+
+
+void MainWindow::on_sendButton_clicked()
+{
+
+}
+

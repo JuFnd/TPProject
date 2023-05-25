@@ -53,7 +53,7 @@ void Server::startServer(const QBluetoothAddress& localAdapter)
     serviceInfo.setAttribute(QBluetoothServiceInfo::ServiceName, tr("Bt Server"));
     serviceInfo.setAttribute(QBluetoothServiceInfo::ServiceDescription,
                              tr("bluetooth server"));
-    serviceInfo.setAttribute(QBluetoothServiceInfo::ServiceProvider, tr);
+    serviceInfo.setAttribute(QBluetoothServiceInfo::ServiceProvider, true   );
     //! [Service name, description and provider]
 
     //! [Service UUID set]
@@ -101,12 +101,14 @@ void Server::stopServer()
 //! [stopServer]
 
 //! [sendMessage]
-void Server::sendMessage(const QString &message)
+void Server::sendMessage(const QImage &message)
 {
-    QByteArray text = message.toUtf8() + '\n';
-
+    QByteArray ba;
+    QBuffer buffer(&ba);
+    buffer.open(QIODevice::WriteOnly);
+    message.save(&buffer, "PNG"); // save image to buffer in PNG format
     for (QBluetoothSocket *socket : qAsConst(clientSockets))
-        socket->write(text);
+        socket->write(ba);
 }
 //! [sendMessage]
 
@@ -146,10 +148,13 @@ void Server::readSocket()
     if (!socket)
         return;
 
-    while (socket->canReadLine()) {
-        QByteArray line = socket->readLine().trimmed();
-        emit messageReceived(socket->peerName(),
-                             QString::fromUtf8(line.constData(), line.length()));
+    while (socket->bytesAvailable() > 0) {
+        QByteArray data = socket->readAll();
+        QImage receivedImage;
+        bool success = receivedImage.loadFromData(data, "PNG"); // load the received image data as a QImage
+        if (success) {
+            emit messageReceived(socket->peerName(), receivedImage);
+        }
     }
 }
 //! [readSocket]
