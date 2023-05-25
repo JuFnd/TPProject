@@ -28,7 +28,7 @@ public slots:
     void sendMessage(const QImage &message);
 
 signals:
-    void messageReceived(const QString &sender, const QImage &message);
+    void imageReceived(const QString &sender, const QImage &message);
     void connected(const QString &name);
     void disconnected();
     void socketErrorOccurred(const QString &errorString);

@@ -2,6 +2,7 @@
 
 #include <QtBluetooth/qbluetoothserver.h>
 #include <QtBluetooth/qbluetoothsocket.h>
+#include <QtGlobal>
 
 //! [Service UUID]
 static const QLatin1String serviceUuid("e8e10f95-1a70-4b27-9ccf-02010264e9c8");
@@ -101,14 +102,17 @@ void Server::stopServer()
 //! [stopServer]
 
 //! [sendMessage]
-void Server::sendMessage(const QImage &message)
+void Server::sendMessage(const QImage &image)
 {
-    QByteArray ba;
-    QBuffer buffer(&ba);
+    QByteArray imageData;
+    QBuffer buffer(&imageData);
     buffer.open(QIODevice::WriteOnly);
-    message.save(&buffer, "PNG"); // save image to buffer in PNG format
-    for (QBluetoothSocket *socket : qAsConst(clientSockets))
-        socket->write(ba);
+    image.save(&buffer, "JPEG");
+
+    for (QBluetoothSocket *socket : qAsConst(clientSockets)) {
+        qint64 bytesToSend = std::min(static_cast<qint64>(socket->bytesAvailable()), qint64(imageData.size()));
+        socket->write(imageData.constData(), bytesToSend);
+    }
 }
 //! [sendMessage]
 
@@ -148,13 +152,20 @@ void Server::readSocket()
     if (!socket)
         return;
 
-    while (socket->bytesAvailable() > 0) {
-        QByteArray data = socket->readAll();
-        QImage receivedImage;
-        bool success = receivedImage.loadFromData(data, "PNG"); // load the received image data as a QImage
-        if (success) {
-            emit messageReceived(socket->peerName(), receivedImage);
-        }
+    // Read image data from socket
+    QByteArray imageData;
+    while (socket->bytesAvailable()) {
+        imageData.append(socket->read(std::min(static_cast<int>(socket->bytesAvailable()), 1024)));
     }
+
+    // Create QImage from image data
+    QImage receivedImage;
+    if (!receivedImage.loadFromData(imageData)) {
+        qDebug() << "Failed to load image data";
+        return;
+    }
+
+    // Emit signal with received image
+    emit messageReceived(socket->peerName(), receivedImage);
 }
 //! [readSocket]

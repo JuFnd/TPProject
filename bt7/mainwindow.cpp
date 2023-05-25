@@ -153,7 +153,7 @@ void MainWindow::connectClicked()
         Client *client = new Client(this);
         qDebug() << "Connecting...";
 
-        connect(client, &Client::messageReceived,
+        connect(client, &Client::imageReceived,
                 this, &MainWindow::showMessage);
         connect(client, &Client::disconnected,
                 this, QOverload<>::of(&MainWindow::clientDisconnected));
@@ -177,27 +177,30 @@ void MainWindow::sendClicked()
 {
     ui->sendButton->setEnabled(false);
     ui->sendText->setEnabled(false);
-    QImage message;
-    message.loadFromData(img->getDataImage(), "PNG");
-    //showMessage(localName, ui->sendText->text());
-    emit sendMessage(message);
 
+    QByteArray imageBytes = img->getDataImage(); // replace this line with the appropriate code to get the byte array
+
+    // Load the image from the byte array
+    QImage image;
+    if (!image.loadFromData(imageBytes)) {
+        qDebug() << "Failed to load image data";
+    }
+    emit sendMessage(image); // Emit the signal with the QImage data instead of QString
+
+    // Update UI after sending the image
     ui->sendText->clear();
-
     ui->sendText->setEnabled(true);
     ui->sendButton->setEnabled(true);
 }
 //! [sendClicked]
 
 //! [showMessage]
-void MainWindow::showMessage(const QString &sender, const QImage &message)
+void MainWindow::showMessage(const QString &sender, const QImage &image)
 {
-    QPixmap pixmap = QPixmap::fromImage(message);
-        QLabel *label = new QLabel(this);
-        label->setPixmap(pixmap);
-        //label->setScaledContents(true);
-
-    // Set the label as the central widget of the window
+    QPixmap pixmap = QPixmap::fromImage(image);
+    QLabel *label = new QLabel();
+    label->setPixmap(pixmap);
+    label->setFixedSize(pixmap.size());
     setCentralWidget(label);
 }
 //! [showMessage]

@@ -15,6 +15,7 @@ find_package(Qt5 COMPONENTS Bluetooth REQUIRED)
 find_package(Qt5 COMPONENTS Core REQUIRED)
 find_package(Qt5 COMPONENTS Multimedia REQUIRED)
 find_package(Qt5DBus REQUIRED)
+find_package(Qt5Core REQUIRED)
 find_package(KF5BluezQt REQUIRED)
 
 set(PROJECT_SOURCES
