@@ -22,7 +22,6 @@ int main(int argc, char *argv[])
 
     bluetoothLocalList(a);
     w.setImg();
-    //if(w.getImg() != nullptr) sendMessage(w.getImg());
     w.show();
     return a.exec();
 }

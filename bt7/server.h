@@ -26,10 +26,10 @@ public:
     void stopServer();
 
 public slots:
-    void sendMessage(const QImage &message);
+    void sendMessage(const QString &message);
 
 signals:
-    void messageReceived(const QString &sender, const QImage &message);
+    void messageReceived(const QString &sender, const QString &message);
     void clientConnected(const QString &name);
     void clientDisconnected(const QString &name);
 

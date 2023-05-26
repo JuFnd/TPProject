@@ -48,29 +48,19 @@ void Client::readSocket()
     if (!socket)
         return;
 
-    while (socket->bytesAvailable() > 0) {
-        QByteArray imageData = socket->readAll();
-        if (!imageData.isEmpty()) {
-            QImage image;
-            image.loadFromData(imageData, "JPEG");
-            emit imageReceived(socket->peerName(), image);
-        }
+    while (socket->canReadLine()) {
+        QByteArray line = socket->readLine();
+        emit messageReceived(socket->peerName(),
+                             QString::fromUtf8(line.constData(), line.length()));
     }
 }
 //! [readSocket]
 
 //! [sendMessage]
-void Client::sendMessage(const QImage &image)
+void Client::sendMessage(const QString &message)
 {
-    QByteArray imageData;
-    QBuffer buffer(&imageData);
-    buffer.open(QIODevice::WriteOnly);
-    image.save(&buffer, "JPEG");
-
-    if (socket) {
-        qint64 bytesToSend = std::min(static_cast<qint64>(socket->bytesAvailable()), qint64(imageData.size()));
-        socket->write(imageData.constData(), bytesToSend);
-    }
+    QByteArray text = message.toUtf8() + '\n';
+    socket->write(text);
 }
 //! [sendMessage]
 

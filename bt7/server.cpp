@@ -102,17 +102,12 @@ void Server::stopServer()
 //! [stopServer]
 
 //! [sendMessage]
-void Server::sendMessage(const QImage &image)
+void Server::sendMessage(const QString &message)
 {
-    QByteArray imageData;
-    QBuffer buffer(&imageData);
-    buffer.open(QIODevice::WriteOnly);
-    image.save(&buffer, "JPEG");
+    QByteArray text = message.toUtf8() + '\n';
 
-    for (QBluetoothSocket *socket : qAsConst(clientSockets)) {
-        qint64 bytesToSend = std::min(static_cast<qint64>(socket->bytesAvailable()), qint64(imageData.size()));
-        socket->write(imageData.constData(), bytesToSend);
-    }
+    for (QBluetoothSocket *socket : qAsConst(clientSockets))
+        socket->write(text);
 }
 //! [sendMessage]
 
@@ -152,20 +147,10 @@ void Server::readSocket()
     if (!socket)
         return;
 
-    // Read image data from socket
-    QByteArray imageData;
-    while (socket->bytesAvailable()) {
-        imageData.append(socket->read(std::min(static_cast<int>(socket->bytesAvailable()), 1024)));
+    while (socket->canReadLine()) {
+        QByteArray line = socket->readLine().trimmed();
+        emit messageReceived(socket->peerName(),
+                             QString::fromUtf8(line.constData(), line.length()));
     }
-
-    // Create QImage from image data
-    QImage receivedImage;
-    if (!receivedImage.loadFromData(imageData)) {
-        qDebug() << "Failed to load image data";
-        return;
-    }
-
-    // Emit signal with received image
-    emit messageReceived(socket->peerName(), receivedImage);
 }
 //! [readSocket]
