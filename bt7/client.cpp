@@ -49,9 +49,9 @@ void Client::readSocket()
         return;
 
     while (socket->canReadLine()) {
-        QByteArray line = socket->readLine();
+        QByteArray line = socket->readAll();
         emit messageReceived(socket->peerName(),
-                             QByteArray::fromBase64(line.constData()));
+                             line);
     }
 }
 //! [readSocket]

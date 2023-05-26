@@ -191,7 +191,12 @@ void MainWindow::sendClicked()
 //! [showMessage]
 void MainWindow::showMessage(const QString &sender, const QByteArray &message)
 {
-    qDebug() << message;
+    delete img;
+    img = nullptr;
+    img = new BluetoothFormatImage(message);
+    QByteArray res = img->getDataImage();
+    img->saveByteArrayAsImage(res);
+    qDebug() << res;
 }
 //! [showMessage]
 
