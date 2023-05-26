@@ -102,12 +102,12 @@ void Server::stopServer()
 //! [stopServer]
 
 //! [sendMessage]
-void Server::sendMessage(const QString &message)
+void Server::sendMessage(const QByteArray &message)
 {
-    QByteArray text = message.toUtf8() + '\n';
+    //QByteArray text = message.toUtf8() + '\n';
 
     for (QBluetoothSocket *socket : qAsConst(clientSockets))
-        socket->write(text);
+        socket->write(message);
 }
 //! [sendMessage]
 
@@ -150,7 +150,7 @@ void Server::readSocket()
     while (socket->canReadLine()) {
         QByteArray line = socket->readLine().trimmed();
         emit messageReceived(socket->peerName(),
-                             QString::fromUtf8(line.constData(), line.length()));
+                             QByteArray::fromBase64(line.constData()));
     }
 }
 //! [readSocket]

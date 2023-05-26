@@ -178,8 +178,8 @@ void MainWindow::sendClicked()
     ui->sendButton->setEnabled(false);
     ui->sendText->setEnabled(false);
 
-    showMessage(localName, ui->sendText->text());
-    emit sendMessage(ui->sendText->text());
+    showMessage(localName, img->getDataImage());
+    emit sendMessage(img->getDataImage());
 
     ui->sendText->clear();
 
@@ -189,7 +189,7 @@ void MainWindow::sendClicked()
 //! [sendClicked]
 
 //! [showMessage]
-void MainWindow::showMessage(const QString &sender, const QString &message)
+void MainWindow::showMessage(const QString &sender, const QByteArray &message)
 {
     qDebug() << message;
 }

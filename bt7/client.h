@@ -25,10 +25,10 @@ public:
     void stopClient();
 
 public slots:
-    void sendMessage(const QString &message);
+    void sendMessage(const QByteArray &message);
 
 signals:
-    void messageReceived(const QString &sender, const QString &message);
+    void messageReceived(const QString &sender, const QByteArray &message);
     void connected(const QString &name);
     void disconnected();
     void socketErrorOccurred(const QString &errorString);

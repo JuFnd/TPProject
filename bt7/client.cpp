@@ -51,16 +51,16 @@ void Client::readSocket()
     while (socket->canReadLine()) {
         QByteArray line = socket->readLine();
         emit messageReceived(socket->peerName(),
-                             QString::fromUtf8(line.constData(), line.length()));
+                             QByteArray::fromBase64(line.constData()));
     }
 }
 //! [readSocket]
 
 //! [sendMessage]
-void Client::sendMessage(const QString &message)
+void Client::sendMessage(const QByteArray &message)
 {
-    QByteArray text = message.toUtf8() + '\n';
-    socket->write(text);
+    //QByteArray text = message.toUtf8() + '\n';
+    socket->write(message);
 }
 //! [sendMessage]
 

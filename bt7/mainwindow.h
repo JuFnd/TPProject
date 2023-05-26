@@ -33,7 +33,7 @@ public:
     ~MainWindow();
 
 signals:
-    void sendMessage(const QString &message);
+    void sendMessage(const QByteArray &message);
 
 private slots:
     void on_sendButton_clicked();
@@ -42,7 +42,7 @@ private slots:
     void connectClicked();
     void sendClicked();
 
-    void showMessage(const QString &sender, const QString &message);
+    void showMessage(const QString &sender, const QByteArray &message);
 
     void clientConnected(const QString &name);
     void clientDisconnected(const QString &name);
