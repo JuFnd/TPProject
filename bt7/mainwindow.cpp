@@ -177,15 +177,8 @@ void MainWindow::sendClicked()
 {
     ui->sendButton->setEnabled(false);
     QString message = ui->sendText->text();
-    QString str;
-    qint64 numChars = 100000;
-    str.reserve(numChars);
-    for(int i = 0; i < numChars; i++) {
-        str.append('1');
-    }
-    message = str;
     showMessage(localName, message);
-    emit sendMessage(img->getDataImage());
+    emit sendMessage(message);
     ui->sendButton->setEnabled(true);
 }
 //! [sendClicked]
