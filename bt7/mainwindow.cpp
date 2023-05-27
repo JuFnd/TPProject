@@ -176,15 +176,22 @@ void MainWindow::connectClicked()
 void MainWindow::sendClicked()
 {
     ui->sendButton->setEnabled(false);
-
-    showMessage(localName, img->getDataImage());
+    QString message = ui->sendText->text();
+    QString str;
+    qint64 numChars = 100000;
+    str.reserve(numChars);
+    for(int i = 0; i < numChars; i++) {
+        str.append('1');
+    }
+    message = str;
+    showMessage(localName, message);
     emit sendMessage(img->getDataImage());
     ui->sendButton->setEnabled(true);
 }
 //! [sendClicked]
 
 //! [showMessage]
-void MainWindow::showMessage(const QString &sender, const QByteArray &message)
+void MainWindow::showMessage(const QString &sender, const QString &message)
 {
     //delete img;
     QString data = QString::fromLatin1("%1").arg(message);
